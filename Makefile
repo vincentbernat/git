@@ -481,6 +481,13 @@ include shared.mak
 #
 # === SHA-1 backend ===
 #
+# ==== Default SHA-1 backend ====
+#
+# If no *_SHA1 backend is picked we'll fall back on using the default.
+#
+# Multiple *_SHA1 backends can be selected, the first supported one
+# listed in "Other SHA-1 implementations" will be picked.
+#
 # ==== Options common to all SHA-1 implementations ====
 #
 # Define SHA1_MAX_BLOCK_SIZE to limit the amount of data that will be hashed
@@ -505,11 +512,11 @@ include shared.mak
 #
 # ==== Other SHA-1 implementations ====
 #
-# Define BLK_SHA1 to make use of optimized C SHA-1 routines bundled
-# with git (in the block-sha1/ directory).
-#
 # Define OPENSSL_SHA1 to link to the SHA-1 routines from the OpenSSL
 # library.
+#
+# Define BLK_SHA1 to make use of optimized C SHA-1 routines bundled
+# with git (in the block-sha1/ directory).
 #
 # === SHA-256 backend ===
 #
@@ -521,13 +528,16 @@ include shared.mak
 # The default SHA-256 backend is shipped with Git. No flag is required
 # to enable it. To select it don't define any other *_SHA256 flag.
 #
+# Multiple *_SHA256 backends can be selected, the first supported one
+# listed in "Other SHA-256 implementations" below will be picked.
+#
 # ==== Other SHA-256 implementations ====
+#
+# Define OPENSSL_SHA256 to use the SHA-256 routines in OpenSSL.
 #
 # Define NETTLE_SHA256 to use the SHA-256 routines in libnettle.
 #
 # Define GCRYPT_SHA256 to use the SHA-256 routines in libgcrypt.
-#
-# Define OPENSSL_SHA256 to use the SHA-256 routines in OpenSSL.
 #
 # == DEVELOPER defines ==
 #
