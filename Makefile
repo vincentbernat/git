@@ -481,6 +481,16 @@ include shared.mak
 #
 # === SHA-1 backend ===
 #
+# ==== Security ====
+#
+# Due to the SHAttered (https://shattered.io) attack vector on SHA-1
+# it's strongly recommended to use the sha1collisiondetection
+# counter-cryptanalysis library for SHA-1 hashing (DC_SHA1).
+#
+# If you know that you can trust the repository contents, or where
+# potential SHA-1 attacks are otherwise mitigated the backends listed
+# in "Other SHA-1 implementations" are faster than DC_SHA1.
+#
 # ==== Default SHA-1 backend ====
 #
 # If no *_SHA1 backend is picked we'll fall back on using the default.
@@ -524,6 +534,11 @@ include shared.mak
 # NO_APPLE_COMMON_CRYPTO is defined by default.
 #
 # === SHA-256 backend ===
+#
+# ==== Security ====
+#
+# Unlike SHA-1 the SHA-256 algorithm does not suffer from any known
+# vulnerabilities, so any implementation will do.
 #
 # ==== Default SHA-256 backend ====
 #
