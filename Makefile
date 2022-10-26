@@ -513,7 +513,15 @@ include shared.mak
 #
 # === SHA-256 backend ===
 #
-# Define BLK_SHA256 to use the built-in SHA-256 routines.
+# ==== Default SHA-256 backend ====
+#
+# If no *_SHA256 backend is picked we'll fall fall back on using the
+# default.
+#
+# The default SHA-256 backend is shipped with Git. No flag is required
+# to enable it. To select it don't define any other *_SHA256 flag.
+#
+# ==== Other SHA-256 implementations ====
 #
 # Define NETTLE_SHA256 to use the SHA-256 routines in libnettle.
 #
