@@ -3064,16 +3064,42 @@ GIT-PYTHON-VARS: FORCE
             fi
 endif
 
-BIN_WRAPPERS = $(patsubst %,bin-wrappers/%,$(BINDIR_PROGRAMS_NEED_X) $(BINDIR_PROGRAMS_NO_X) $(TEST_PROGRAMS_NEED_X))
+define cmd_munge_bin_wrappers_script
+sed \
+	-e $(call cmd_munge_script_sed_shell_path_arg) \
+	-e 's|@@BUILD_DIR@@|$(shell pwd)|' \
+	-e 's|@@PROG@@|$(2)$(1)$(3)|' \
+	<$< >$@ && \
+	chmod +x $@
+endef
+
+define bin_wrappers_template
+
+### bin_wrappers_template; Parameters:
+## E.g. "BINDIR_PROGRAMS_NEED_X": Variable reference
+# 1='$(1)'
+## E.g. "$(@F)": Passed as $$(1)) to "cmd_munge_bin_wrappers_script"
+# 2='$(2)'
+## E.g. "" or "t/helper": Directory prefix for the wrapped binary
+# 3='$(3)'
+## E.g. "" or "$$X": If $$X: wrapped binary needs X=.exe (for Windows)
+# 4='$(4)'
+BW_$(1) = $$($(1):%=bin-wrappers/%)
+BIN_WRAPPERS += $$(BW_$(1))
+$$(BW_$(1)): bin-wrappers/% : $(3)%$(4)
+$$(BW_$(1)): wrap-for-bin.sh
+	$$(call mkdir_p_parent_template)
+	$$(QUIET_GEN)$$(call cmd_munge_bin_wrappers_script,$(2),$(3),$(4))
+endef
+
+define bin_wrappers_templates
+$(call bin_wrappers_template,BINDIR_PROGRAMS_NEED_X,'$$(@F)',,$$X)
+$(call bin_wrappers_template,BINDIR_PROGRAMS_NO_X,'$$(@F)')
+$(call bin_wrappers_template,TEST_PROGRAMS_NEED_X,'$$(@F)',t/helper/,$$X)
+endef
+$(eval $(call bin_wrappers_templates))
 
 all:: $(BIN_WRAPPERS)
-
-bin-wrappers/%: wrap-for-bin.sh
-	$(call mkdir_p_parent_template)
-	$(QUIET_GEN)sed -e $(call cmd_munge_script_sed_shell_path_arg) \
-	     -e 's|@@BUILD_DIR@@|$(shell pwd)|' \
-	     -e 's|@@PROG@@|$(patsubst test-%,t/helper/test-%,$(@F))$(if $(filter-out $(BINDIR_PROGRAMS_NO_X),$(@F)),$(X),)|' < $< > $@ && \
-	chmod +x $@
 
 # GNU make supports exporting all variables by "export" without parameters.
 # However, the environment gets quite big, and some programs have problems
