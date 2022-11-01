@@ -279,6 +279,13 @@ test_expect_success 'git branch -M and -C fail on detached HEAD' '
 	test_cmp expect err
 '
 
+test_expect_success 'git branch -d on detached HEAD' '
+	test_when_finished git checkout main &&
+	git checkout --orphan orphan &&
+	test_must_fail git branch -d main 2>err &&
+	grep "not fully merged" err
+'
+
 test_expect_success 'git branch -v -d t should work' '
 	git branch t &&
 	git rev-parse --verify refs/heads/t &&

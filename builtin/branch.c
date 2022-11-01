@@ -235,11 +235,8 @@ static int delete_branches(int argc, const char **argv, int force, int kinds,
 	}
 	branch_name_pos = strcspn(fmt, "%");
 
-	if (!force) {
+	if (!force)
 		head_rev = lookup_commit_reference(the_repository, &head_oid);
-		if (!head_rev)
-			die(_("Couldn't look up commit object for HEAD"));
-	}
 
 	for (i = 0; i < argc; i++, strbuf_reset(&bname)) {
 		char *target = NULL;
