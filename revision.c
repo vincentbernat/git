@@ -1,4 +1,5 @@
 #include "cache.h"
+#include "config.h"
 #include "object-store.h"
 #include "tag.h"
 #include "blob.h"
@@ -1523,6 +1524,8 @@ struct all_refs_cb {
 	struct rev_info *all_revs;
 	const char *name_for_errormsg;
 	struct worktree *wt;
+	struct string_list hidden_refs;
+	const char *hidden_refs_section;
 };
 
 int ref_excluded(struct string_list *ref_excludes, const char *path)
@@ -1542,11 +1545,13 @@ static int handle_one_ref(const char *path, const struct object_id *oid,
 			  int flag UNUSED,
 			  void *cb_data)
 {
+	const char *stripped_path = strip_namespace(path);
 	struct all_refs_cb *cb = cb_data;
 	struct object *object;
 
-	if (ref_excluded(cb->all_revs->ref_excludes, path))
-	    return 0;
+	if (ref_excluded(cb->all_revs->ref_excludes, path) ||
+	    ref_is_hidden(stripped_path, path, &cb->hidden_refs))
+		return 0;
 
 	object = get_reference(cb->all_revs, path, oid, cb->all_flags);
 	add_rev_cmdline(cb->all_revs, object, path, REV_CMD_REF, cb->all_flags);
@@ -1561,6 +1566,7 @@ static void init_all_refs_cb(struct all_refs_cb *cb, struct rev_info *revs,
 	cb->all_flags = flags;
 	revs->rev_input_given = 1;
 	cb->wt = NULL;
+	string_list_init_dup(&cb->hidden_refs);
 }
 
 void clear_ref_exclusion(struct string_list **ref_excludes_p)
@@ -1594,6 +1600,13 @@ static void handle_refs(struct ref_store *refs,
 
 	init_all_refs_cb(&cb, revs, flags);
 	for_each(refs, handle_one_ref, &cb);
+}
+
+static int hide_refs_config(const char *var, const char *value, void *cb_data)
+{
+	struct all_refs_cb *cb = cb_data;
+	return parse_hide_refs_config(var, value, cb->hidden_refs_section,
+				      &cb->hidden_refs);
 }
 
 static void handle_one_reflog_commit(struct object_id *oid, void *cb_data)
@@ -2225,7 +2238,7 @@ static int handle_revision_opt(struct rev_info *revs, int argc, const char **arg
 	    !strcmp(arg, "--bisect") || starts_with(arg, "--glob=") ||
 	    !strcmp(arg, "--indexed-objects") ||
 	    !strcmp(arg, "--alternate-refs") ||
-	    starts_with(arg, "--exclude=") ||
+	    starts_with(arg, "--exclude=") || starts_with(arg, "--visible-refs=") ||
 	    starts_with(arg, "--branches=") || starts_with(arg, "--tags=") ||
 	    starts_with(arg, "--remotes=") || starts_with(arg, "--no-walk="))
 	{
@@ -2759,6 +2772,21 @@ static int handle_revision_pseudo_opt(struct rev_info *revs,
 		parse_list_objects_filter(&revs->filter, arg);
 	} else if (!strcmp(arg, ("--no-filter"))) {
 		list_objects_filter_set_no_filter(&revs->filter);
+	} else if (skip_prefix(arg, "--visible-refs=", &arg)) {
+		struct all_refs_cb cb;
+
+		if (strcmp(arg, "transfer") && strcmp(arg, "receive") &&
+		    strcmp(arg, "uploadpack"))
+			die(_("unsupported section for --visible-refs: %s"), arg);
+
+		init_all_refs_cb(&cb, revs, *flags);
+		cb.hidden_refs_section = arg;
+		git_config(hide_refs_config, &cb);
+
+		refs_for_each_ref(refs, handle_one_ref, &cb);
+
+		string_list_clear(&cb.hidden_refs, 1);
+		clear_ref_exclusion(&revs->ref_excludes);
 	} else {
 		return 0;
 	}

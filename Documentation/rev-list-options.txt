@@ -180,14 +180,19 @@ endif::git-log[]
 	is automatically prepended if missing. If pattern lacks '?', '{asterisk}',
 	or '[', '/{asterisk}' at the end is implied.
 
+--visible-refs=[transfer|receive|uploadpack]::
+	Pretend as if all the refs that have not been hidden via either one of
+	`transfer.hideRefs`, `receive.hideRefs` or `uploadpack.hideRefs` are
+	listed on the command line.
+
 --exclude=<glob-pattern>::
 
 	Do not include refs matching '<glob-pattern>' that the next `--all`,
-	`--branches`, `--tags`, `--remotes`, or `--glob` would otherwise
-	consider. Repetitions of this option accumulate exclusion patterns
-	up to the next `--all`, `--branches`, `--tags`, `--remotes`, or
-	`--glob` option (other options or arguments do not clear
-	accumulated patterns).
+	`--branches`, `--tags`, `--remotes`, `--glob` or `--visible-refs` would
+	otherwise consider. Repetitions of this option accumulate exclusion
+	patterns up to the next `--all`, `--branches`, `--tags`, `--remotes`,
+	`--glob` or `--visible-refs` option (other options or arguments do not
+	clear accumulated patterns).
 +
 The patterns given should not begin with `refs/heads`, `refs/tags`, or
 `refs/remotes` when applied to `--branches`, `--tags`, or `--remotes`,
