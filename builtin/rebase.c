@@ -1825,10 +1825,13 @@ cleanup:
 	strbuf_release(&buf);
 	strbuf_release(&revisions);
 	free(options.head_name);
+	strvec_clear(&options.git_am_opts);
 	free(options.gpg_sign_opt);
 	free(options.cmd);
 	free(options.strategy);
 	strbuf_release(&options.git_format_patch_opt);
 	free(squash_onto_name);
+	string_list_clear(&exec, 0);
+	string_list_clear(&strategy_options, 0);
 	return !!ret;
 }
