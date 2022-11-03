@@ -46,6 +46,12 @@ struct check_connected_options {
 	 * during a fetch.
 	 */
 	unsigned is_deepening_fetch : 1;
+
+	/*
+	 * If not NULL, use `--visible-refs=$section` instead of `--not --all`
+	 * as the set of already-reachable references.
+	 */
+	const char *visible_refs_section;
 };
 
 #define CHECK_CONNECTED_INIT { 0 }
