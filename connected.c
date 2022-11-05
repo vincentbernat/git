@@ -101,7 +101,10 @@ no_promisor_pack_found:
 		strvec_push(&rev_list.args, "--exclude-promisor-objects");
 	if (!opt->is_deepening_fetch) {
 		strvec_push(&rev_list.args, "--not");
-		strvec_push(&rev_list.args, "--all");
+		if (opt->visible_refs_section)
+			strvec_pushf(&rev_list.args, "--visible-refs=%s", opt->visible_refs_section);
+		else
+			strvec_push(&rev_list.args, "--all");
 	}
 	strvec_push(&rev_list.args, "--quiet");
 	strvec_push(&rev_list.args, "--alternate-refs");

@@ -77,6 +77,7 @@ static int is_rev_argument(const char *arg)
 		"--topo-order",
 		"--date-order",
 		"--unpacked",
+		"--visible-refs=",
 		NULL
 	};
 	const char **p = rev_args;
