@@ -655,6 +655,7 @@ static int add(int ac, const char **av, const char *prefix)
 			 N_("try to match the new branch name with a remote-tracking branch")),
 		OPT_END()
 	};
+	int ret;
 
 	memset(&opts, 0, sizeof(opts));
 	opts.checkout = 1;
@@ -760,9 +761,9 @@ static int add(int ac, const char **av, const char *prefix)
 		die(_("--[no-]track can only be used if a new branch is created"));
 	}
 
-	UNLEAK(path);
-	UNLEAK(opts);
-	return add_worktree(path, branch, &opts);
+	ret = add_worktree(path, branch, &opts);
+	free(path);
+	return ret;
 }
 
 static void show_worktree_porcelain(struct worktree *wt, int line_terminator)
