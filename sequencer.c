@@ -4120,7 +4120,7 @@ leave_merge:
 	return ret;
 }
 
-static int write_update_refs_state(struct string_list *refs_to_oids)
+static int write_update_refs_state(struct string_list *refs_to_oids, int force_if_empty)
 {
 	int result = 0;
 	struct lock_file lock = LOCK_INIT;
@@ -4128,7 +4128,12 @@ static int write_update_refs_state(struct string_list *refs_to_oids)
 	struct string_list_item *item;
 	char *path;
 
-	if (!refs_to_oids->nr)
+	/*
+	 * If 'force' is specified, we want to write the updated refs even if
+	 * the list is empty. This is only needed for callers that may have
+	 * deleted items from 'refs_to_oids'.
+	 */
+	if (!refs_to_oids->nr && !force_if_empty)
 		return 0;
 
 	path = rebase_path_update_refs(the_repository->gitdir);
@@ -4258,7 +4263,7 @@ void todo_list_filter_update_refs(struct repository *r,
 	}
 
 	if (updated)
-		write_update_refs_state(&update_refs);
+		write_update_refs_state(&update_refs, 1);
 	string_list_clear(&update_refs, 1);
 }
 
@@ -4279,7 +4284,7 @@ static int do_update_ref(struct repository *r, const char *refname)
 		}
 	}
 
-	write_update_refs_state(&list);
+	write_update_refs_state(&list, 0);
 	string_list_clear(&list, 1);
 	return 0;
 }
@@ -6011,7 +6016,7 @@ static int todo_list_add_update_ref_commands(struct todo_list *todo_list)
 		}
 	}
 
-	res = write_update_refs_state(&ctx.refs_to_oids);
+	res = write_update_refs_state(&ctx.refs_to_oids, 0);
 
 	string_list_clear(&ctx.refs_to_oids, 1);
 

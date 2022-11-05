@@ -1964,6 +1964,30 @@ test_expect_success 'respect user edits to update-ref steps' '
 	test_cmp_rev HEAD refs/heads/no-conflict-branch
 '
 
+test_expect_success '--update-refs: do not delete refs if all update-ref are removed' '
+	git checkout -b test-refs-not-removed no-conflict-branch &&
+	git branch -f base HEAD~4 &&
+	git branch -f first HEAD~3 &&
+	git branch -f second HEAD~3 &&
+	git branch -f third HEAD~1 &&
+	git branch -f tip &&
+	(
+		set_cat_todo_editor &&
+		test_must_fail git rebase -i --update-refs base >todo.raw &&
+		sed -e "/^update-ref/d" <todo.raw >todo
+	) &&
+	(
+		set_replace_editor todo &&
+		git rebase -i --update-refs base
+	) &&
+
+	test_cmp_rev HEAD~3 refs/heads/first &&
+	test_cmp_rev HEAD~3 refs/heads/second &&
+	test_cmp_rev HEAD~1 refs/heads/third &&
+	test_cmp_rev HEAD refs/heads/tip &&
+	test_cmp_rev HEAD refs/heads/no-conflict-branch
+'
+
 test_expect_success '--update-refs: check failed ref update' '
 	git checkout -B update-refs-error no-conflict-branch &&
 	git branch -f base HEAD~4 &&
