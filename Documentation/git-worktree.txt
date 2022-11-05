@@ -10,7 +10,7 @@ SYNOPSIS
 --------
 [verse]
 'git worktree add' [-f] [--detach] [--checkout] [--lock [--reason <string>]]
-		   [-b <new-branch>] <path> [<commit-ish>]
+		   [[-b | -B | --orphan] <new-branch>] <path> [<commit-ish>]
 'git worktree list' [-v | --porcelain [-z]]
 'git worktree lock' [--reason <string>] <worktree>
 'git worktree move' <worktree> <new-path>
@@ -95,6 +95,17 @@ exist, a new branch based on `HEAD` is automatically created as if
 `-b <branch>` was given.  If `<branch>` does exist, it will be checked out
 in the new worktree, if it's not checked out anywhere else, otherwise the
 command will refuse to create the worktree (unless `--force` is used).
++
+------------
+$ git worktree add --orphan <branch> <path> [<commit-ish>]
+------------
++
+Create a worktree containing an orphan branch named `<branch>` based
+on `<commit-ish>`. If `<commit-ish>` is not specified, the new orphan branch
+will be created based on `HEAD`.
++
+Note that unlike with `-b` or `-B`, this operation will succeed even if
+`<commit-ish>` is a branch that is currently checked out somewhere else.
 
 list::
 
@@ -221,6 +232,11 @@ This can also be set up as the default behaviour by using the
 --dry-run::
 	With `prune`, do not remove anything; just report what it would
 	remove.
+
+--orphan <new-branch>::
+	With `add`, create a new orphan branch named `<new-branch>` in the new
+	worktree based on `<commit-ish>`. If `<commit-ish>` is omitted, it
+	defaults to `HEAD`.
 
 --porcelain::
 	With `list`, output in an easy-to-parse format for scripts.
