@@ -541,6 +541,7 @@ static int module_init(int argc, const char **argv, const char *prefix)
 		NULL
 	};
 	int ret = 1;
+	const struct string_list *unused;
 
 	argc = parse_options(argc, argv, prefix, module_init_options,
 			     git_submodule_helper_usage, 0);
@@ -552,7 +553,7 @@ static int module_init(int argc, const char **argv, const char *prefix)
 	 * If there are no path args and submodule.active is set then,
 	 * by default, only initialize 'active' modules.
 	 */
-	if (!argc && git_config_get_value_multi("submodule.active"))
+	if (!argc && !git_config_get_value_multi("submodule.active", &unused))
 		module_list_active(&list);
 
 	info.prefix = prefix;
@@ -2780,6 +2781,7 @@ static int module_update(int argc, const char **argv, const char *prefix)
 	if (opt.init) {
 		struct module_list list = MODULE_LIST_INIT;
 		struct init_cb info = INIT_CB_INIT;
+		const struct string_list *unused;
 
 		if (module_list_compute(argv, opt.prefix,
 					&pathspec2, &list) < 0) {
@@ -2792,7 +2794,7 @@ static int module_update(int argc, const char **argv, const char *prefix)
 		 * If there are no path args and submodule.active is set then,
 		 * by default, only initialize 'active' modules.
 		 */
-		if (!argc && git_config_get_value_multi("submodule.active"))
+		if (!argc && !git_config_get_value_multi("submodule.active", &unused))
 			module_list_active(&list);
 
 		info.prefix = opt.prefix;
