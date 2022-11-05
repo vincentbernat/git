@@ -45,7 +45,9 @@ OPTIONS
 
 -s::
 	Instead of the content, show the object size identified by
-	`<object>`.
+	`<object>`. If used with `--use-mailmap` option, will show the
+	size of updated object after replacing idents using the mailmap
+	mechanism.
 
 -e::
 	Exit with zero status if `<object>` exists and is a valid
@@ -101,6 +103,8 @@ OPTIONS
 	`--textconv` or `--filters`, in which case the input lines also
 	need to specify the path, separated by whitespace.  See the
 	section `BATCH OUTPUT` below for details.
+	If used with `--use-mailmap` option, will show the size of
+	updated object after replacing idents using the mailmap mechanism.
 
 --batch-command::
 --batch-command=<format>::
